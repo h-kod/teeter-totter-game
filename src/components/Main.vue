@@ -39,123 +39,102 @@
         <small>Player item move</small>
       </p>
     </div>
-
-
   </div>
 </template>
 
-<script>
-import { mapActions, mapState, mapGetters } from 'vuex';
+<script setup>
+import { ref, computed, watch, onMounted } from 'vue'
+import { useStore } from 'vuex'
 import {
   ITEM_SIZE, MAX_CHANGE, MAP_SIZE, MAP_LEVELS,
-} from '../settings';
-import Item from './Item.vue';
-import Libra from './Libra.vue';
+} from '../settings'
+import Item from './Item.vue'
+import Libra from './Libra.vue'
 
-export default {
-  name: 'Main',
-  data() {
-    return {
-      isInitialGame: true,
-      isLose: false,
-    };
-  },
-  components: {
-    Libra,
-    Item,
-  },
-  computed: {
-    playerPosition() {
-      return {
-        left: `${this.player.position * ITEM_SIZE}px`,
-        top: `${this.level * ITEM_SIZE}px`,
-      };
-    },
-    computerPosition() {
-      return {
-        left: `${this.computer.position * ITEM_SIZE}px`,
-        top: `${this.level * ITEM_SIZE}px`,
-      };
-    },
-    battleGroundStyle() {
-      return {
-        'background-size': `${ITEM_SIZE}px ${ITEM_SIZE}px`,
-        height: `${(MAP_LEVELS + 1) * ITEM_SIZE}px`,
-      };
-    },
-    mainStyle() {
-      return {
-        'max-width': `${((MAP_SIZE + 1) * 2) * (ITEM_SIZE) + 1}px`,
+const store = useStore()
+const isInitialGame = ref(true)
+const isLose = ref(false)
 
-      };
-    },
-    ...mapState({
-      player: state => state.battleGround.player,
-      computer: state => state.battleGround.computer,
-      level: state => state.battleGround.level,
-      isStarted: state => !!state.timeoutId,
-    }),
-    ...mapGetters({
-      rotate: 'rotate',
-      mapItems: 'mapItems',
-      scoreGame: 'scoreGame',
-    }),
-  },
-  created() {
-    document.addEventListener('keydown', (event) => {
-      if (this.isLose || this.isInitialGame) {
-        switch (event.code) {
-          case 'Space' && 'Enter':
-            this.startNewGame();
-            break;
-        }
-        return;
+const isStarted = computed(() => !!store.state.timeoutId)
+const player = computed(() => store.state.battleGround.player)
+const computer = computed(() => store.state.battleGround.computer)
+const level = computed(() => store.state.battleGround.level)
+const rotate = computed(() => store.getters.rotate)
+const mapItems = computed(() => store.getters.mapItems)
+const scoreGame = computed(() => store.getters.scoreGame)
+
+const playerPosition = computed(() => ({
+  left: `${player.value.position * ITEM_SIZE}px`,
+  top: `${level.value * ITEM_SIZE}px`,
+}))
+
+const computerPosition = computed(() => ({
+  left: `${computer.value.position * ITEM_SIZE}px`,
+  top: `${level.value * ITEM_SIZE}px`,
+}))
+
+const battleGroundStyle = computed(() => ({
+  'background-size': `${ITEM_SIZE}px ${ITEM_SIZE}px`,
+  height: `${(MAP_LEVELS + 1) * ITEM_SIZE}px`,
+}))
+
+const mainStyle = computed(() => ({
+  'max-width': `${((MAP_SIZE + 1) * 2) * (ITEM_SIZE) + 1}px`,
+}))
+
+const toggleStart = () => {
+  if (isStarted.value) {
+    store.dispatch('stop')
+  } else {
+    store.dispatch('start')
+  }
+}
+
+const startNewGame = () => {
+  isLose.value = false
+  isInitialGame.value = false
+  store.dispatch('newGame')
+  store.dispatch('start')
+}
+
+const moveLeft = () => store.dispatch('moveLeft')
+const moveRight = () => store.dispatch('moveRight')
+const start = () => store.dispatch('start')
+
+watch(rotate, (value) => {
+  if (value > MAX_CHANGE || value < -MAX_CHANGE) {
+    isLose.value = true
+    store.dispatch('stop')
+  }
+})
+
+onMounted(() => {
+  document.addEventListener('keydown', (event) => {
+    if (isLose.value || isInitialGame.value) {
+      if (event.code === 'Space' || event.code === 'Enter') {
+        startNewGame()
       }
-      // eslint-disable-next-line default-case
-      switch (event.code) {
-        case 'ArrowLeft':
-          this.moveLeft();
-          break;
-        case 'ArrowRight':
-          this.moveRight();
-          break;
-        case 'Space':
-          this.toggleStart();
-          break;
-        case 'ArrowDown':
-          this.start();
-          break;
-        case 'Enter':
-          this.startNewGame();
-          break;
-      }
-    });
-  },
-  methods: {
-    toggleStart() {
-      if (this.isStarted) {
-        this.stop();
-      } else {
-        this.start();
-      }
-    },
-    startNewGame() {
-      this.isLose = false;
-      this.isInitialGame = false;
-      this.newGame();
-      this.start();
-    },
-    ...mapActions(['moveLeft', 'moveRight', 'start', 'stop', 'newGame']),
-  },
-  watch: {
-    rotate(value) {
-      if (value > MAX_CHANGE || value < -MAX_CHANGE) {
-        this.isLose = true;
-        this.stop();
-      }
-    },
-  },
-};
+      return
+    }
+    switch (event.code) {
+      case 'ArrowLeft':
+        moveLeft()
+        break
+      case 'ArrowRight':
+        moveRight()
+        break
+      case 'Space':
+        toggleStart()
+        break
+      case 'ArrowDown':
+        start()
+        break
+      case 'Enter':
+        startNewGame()
+        break
+    }
+  })
+})
 </script>
 
 <style scoped lang="scss">
@@ -171,7 +150,7 @@ export default {
   position: relative;
   background: linear-gradient(#1f1f1f, transparent 2px),
     linear-gradient(90deg, #1f1f1f, transparent 2px);
-    background-color: #0000004d;
+  background-color: #0000004d;
 
   .ground__item {
     position: absolute;

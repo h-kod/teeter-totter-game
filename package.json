@@ -1,44 +1,25 @@
-{   "name": "teeter-totter-hkod",
+{
+  "name": "teeter-totter-hkod",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "start": "serve ./dist",
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "core-js": "^3.3.2",
     "normalize.css": "^8.0.1",
-    "serve": "^11.2.0",
-    "vue": "^2.6.10",
-    "vuex": "^3.0.1"
+    "vue": "^3.5.0",
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.0.0",
-    "@vue/cli-plugin-eslint": "^4.0.0",
-    "@vue/cli-plugin-vuex": "^4.0.0",
-    "@vue/cli-service": "^4.0.0",
-    "@vue/eslint-config-airbnb": "^4.0.0",
-    "babel-eslint": "^10.0.3",
-    "eslint": "^5.16.0",
-    "eslint-plugin-vue": "^5.0.0",
-    "lint-staged": "^9.4.2",
-    "sass": "^1.19.0",
-    "sass-loader": "^8.0.0",
-    "vue-template-compiler": "^2.6.10"
+    "@vitejs/plugin-vue": "^5.0.0",
+    "sass": "^1.70.0",
+    "vite": "^8.0.16"
   },
-  "gitHooks": {
-    "pre-commit": "lint-staged"
-  },
-  "lint-staged": {
-    "*.{js,vue}": [
-      "vue-cli-service lint",
-      "git add"
-    ]
-  },
-  "description": "```bash\r // dev server\r npm run serve;",
-  "main": ".eslintrc.js",
+  "description": "Balance game built with Vue 3 and Vite",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/h-kod/teeter-totter.git"

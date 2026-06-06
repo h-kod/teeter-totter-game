@@ -1,43 +1,38 @@
 <template>
   <div class="item" :class="[figure]" :style="style">
     <div class="item__description">
-      {{ weight + 'kg' }}
+      {{ weight }}kg
     </div>
   </div>
 </template>
 
-<script>
-import * as items from '../settings';
+<script setup>
+import { computed } from 'vue'
+import * as items from '../settings'
 
-export default {
-  name: 'Item',
-  props: {
-    figure: {
-      type: String,
-      default: items.SQUARE,
-    },
-    weight: {
-      type: Number,
-      default: 5,
-    },
+const props = defineProps({
+  figure: {
+    type: String,
+    default: items.SQUARE,
   },
-  computed: {
-    scale() {
-      return (50 + 5 * this.weight) / 100;
-    },
-    style() {
-      return {
-        transform: `scale(${this.scale})`,
-        width: `${items.ITEM_SIZE}px`,
-        height: `${items.ITEM_SIZE}px`,
-      };
-    },
+  weight: {
+    type: Number,
+    default: 5,
   },
-};
+})
+
+const scale = computed(() => (50 + 5 * props.weight) / 100)
+
+const style = computed(() => ({
+  transform: `scale(${scale.value})`,
+  width: `${items.ITEM_SIZE}px`,
+  height: `${items.ITEM_SIZE}px`,
+}))
 </script>
 
 <style scoped lang="scss">
-  $item-width: 80px;
+$item-width: 80px;
+
 .item {
   position: relative;
   text-align: center;
@@ -53,7 +48,8 @@ export default {
     z-index: -1;
   }
 
-  &.square:before {}
+  &.square:before {
+  }
 
   &.circle:before {
     border-radius: 50%;
